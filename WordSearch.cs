@@ -5,17 +5,35 @@ using System.Linq;
 
 namespace KKP.WordSearch
 {
-    class WordDictionary
+    public class MatchWords
     {
-        public WordDictionary()
-        {
-            AddTestWords();
-        }
+        #region Properties
 
         private string SearchWord { get; set; }
         private Dictionary<char, int> SearchWordCharCount { get; set; }
 
+        #endregion Properties
+
+        #region Fields
+
         private Dictionary<string, List<string>> wordHash = new Dictionary<string, List<string>>();
+
+        #endregion Fields
+
+        public List<string> Search(string searchWord)
+        {
+            if (string.IsNullOrEmpty(searchWord))
+            {
+                throw new ApplicationException("Word is invalid.");
+            }
+
+            SearchWord = searchWord.ToLower();
+            SearchWordCharCount = GetCharCountFromString(SearchWord);
+
+            AddTestWordsToHash();
+
+            return GetMatchingWords();
+        }
 
         private string GetHashKey(string word)
         {
@@ -24,7 +42,7 @@ namespace KKP.WordSearch
             return new string(charArray);
         }
 
-        public void Add(string newWord)
+        public void AddWordToHash(string newWord)
         {
             if (string.IsNullOrEmpty(newWord))
             {
@@ -51,19 +69,16 @@ namespace KKP.WordSearch
             }
         }
 
-        private void AddTestWords()
+        private void AddTestWordsToHash()
         {
-            foreach (var word in File.ReadAllLines("WordSearch\\wordlist.txt").ToList())
+            foreach (var word in File.ReadAllLines("wordlist.txt").ToList())
             {
-                Add(word.Trim().ToLower());
+                AddWordToHash(word.Trim().ToLower());
             }
         }
 
-        public List<string> GetMatchingWords(string searchWord)
+        private List<string> GetMatchingWords()
         {
-            SearchWord = searchWord.ToLower();
-            SearchWordCharCount = GetCharCountFromString(SearchWord);
-
             var wordList = new List<string>();
 
             foreach (var keyValuePair in wordHash)
@@ -74,7 +89,7 @@ namespace KKP.WordSearch
                 }
             }
 
-            return wordList;
+            return wordList.OrderBy(x => x).ToList();
         }
 
         private Dictionary<char, int> GetCharCountFromString(string stringToCount)
@@ -96,8 +111,7 @@ namespace KKP.WordSearch
             return countDictionary;
         }
 
-
-        public bool IsSubKey(string key)
+        private bool IsSubKey(string key)
         {
             var isSubKey = true;
 
