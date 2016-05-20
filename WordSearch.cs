@@ -9,18 +9,34 @@ namespace KKP.WordSearch
     {
         #region Properties
 
+        public List<string> MatchingWordList { get; private set; }
+
         private string SearchWord { get; set; }
         private Dictionary<char, int> SearchWordCharCount { get; set; }
+
+        private Dictionary<string, List<string>> WordHash
+        {
+            get
+            {
+                if (_wordHash == null)
+                {
+                    _wordHash = new Dictionary<string, List<string>>();
+                    AddTestWordsToHash();
+                }
+
+                return _wordHash;
+            }
+        }
 
         #endregion Properties
 
         #region Fields
 
-        private Dictionary<string, List<string>> wordHash = new Dictionary<string, List<string>>();
+        private Dictionary<string, List<string>> _wordHash;
 
         #endregion Fields
 
-        public List<string> Search(string searchWord)
+        public void Search(string searchWord)
         {
             if (string.IsNullOrEmpty(searchWord))
             {
@@ -30,9 +46,35 @@ namespace KKP.WordSearch
             SearchWord = searchWord.ToLower();
             SearchWordCharCount = GetCharCountFromString(SearchWord);
 
-            AddTestWordsToHash();
+            GetMatchingWords();
+        }
 
-            return GetMatchingWords();
+        public void PrintMatchingWords()
+        {
+            if (MatchingWordList == null || MatchingWordList.Count < 1)
+            {
+                Console.WriteLine("\n\nNo matches found for {0}.", SearchWord);
+            }
+            else
+            {
+                Console.WriteLine("\n\nMatches found for {0}:", SearchWord);
+
+                foreach (var word in MatchingWordList)
+                {
+                    Console.WriteLine(word);
+                }
+
+                Console.WriteLine("\n\nEnd of list for {0}", SearchWord);
+            }
+        }
+
+        private void ResetMatchingWordList()
+        {
+            if (MatchingWordList != null)
+            {
+                MatchingWordList.Clear();
+                MatchingWordList = null;
+            }
         }
 
         private string GetHashKey(string word)
@@ -51,9 +93,9 @@ namespace KKP.WordSearch
 
             var key = GetHashKey(newWord);
 
-            if (wordHash.ContainsKey(key))
+            if (WordHash.ContainsKey(key))
             {
-                var wordList = wordHash[key];
+                var wordList = WordHash[key];
 
                 if (!wordList.Contains(newWord))
                 {
@@ -65,7 +107,7 @@ namespace KKP.WordSearch
                 var wordList = new List<string>();
                 wordList.Add(newWord);
 
-                wordHash.Add(key, wordList);
+                WordHash.Add(key, wordList);
             }
         }
 
@@ -77,19 +119,19 @@ namespace KKP.WordSearch
             }
         }
 
-        private List<string> GetMatchingWords()
+        private void GetMatchingWords()
         {
             var wordList = new List<string>();
 
-            foreach (var keyValuePair in wordHash)
+            foreach (var keyValuePair in WordHash)
             {
                 if (IsSubKey(keyValuePair.Key))
                 {
-                    wordList.AddRange(wordHash[keyValuePair.Key]);
+                    wordList.AddRange(WordHash[keyValuePair.Key]);
                 }
             }
 
-            return wordList.OrderBy(x => x).ToList();
+            MatchingWordList = wordList.OrderBy(x => x).ToList();
         }
 
         private Dictionary<char, int> GetCharCountFromString(string stringToCount)
