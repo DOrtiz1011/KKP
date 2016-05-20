@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace KKP.WordSearch
+namespace KKP
 {
     public class MatchWords
     {

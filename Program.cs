@@ -1,5 +1,4 @@
 ﻿using System;
-using KKP.WordSearch;
 
 namespace KKP
 {
