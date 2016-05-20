@@ -36,6 +36,8 @@ namespace KKP.WordSearch
 
         #endregion Fields
 
+        #region Public Methods
+
         public void Search(string searchWord)
         {
             if (string.IsNullOrEmpty(searchWord))
@@ -68,6 +70,10 @@ namespace KKP.WordSearch
             }
         }
 
+        #endregion Public Methods
+
+        #region Private Methods
+        
         private void ResetMatchingWordList()
         {
             if (MatchingWordList != null)
@@ -84,7 +90,7 @@ namespace KKP.WordSearch
             return new string(charArray);
         }
 
-        public void AddWordToHash(string newWord)
+        private void AddWordToHash(string newWord)
         {
             if (string.IsNullOrEmpty(newWord))
             {
@@ -181,5 +187,7 @@ namespace KKP.WordSearch
 
             return isSubKey;
         }
+
+        #endregion Private Methods
     }
 }

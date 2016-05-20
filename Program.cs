@@ -18,7 +18,10 @@ namespace KKP
             var twoTrains = new TwoTrains();
 
             twoTrains.CalculateTimeAndDistance(70m, 60m, 260m);
-            twoTrains.CalculateTimeAndDistance(150.75m, 88.88m, 753.254m);
+            twoTrains.PrintResults();
+
+            twoTrains.CalculateTimeAndDistance(1150.75m, 88.88m, 97530.254m);
+            twoTrains.PrintResults();
 
             Console.ReadLine();
         }
