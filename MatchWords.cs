@@ -5,11 +5,11 @@ using System.Linq;
 
 namespace KKP
 {
-    public class MatchWords
+    internal sealed class MatchWords
     {
         #region Properties
 
-        public List<string> MatchingWordList { get; private set; }
+        private List<string> MatchingWordList { get; set; }
 
         private string SearchWord { get; set; }
         private Dictionary<char, int> SearchWordCharCount { get; set; }
@@ -55,25 +55,25 @@ namespace KKP
         {
             if (MatchingWordList == null || MatchingWordList.Count < 1)
             {
-                Console.WriteLine("\n\nNo matches found for {0}.", SearchWord);
+                Console.WriteLine($"\n\nNo matches found for {SearchWord}.");
             }
             else
             {
-                Console.WriteLine("\n\nMatches found for {0}:", SearchWord);
+                Console.WriteLine($"\n\nMatches found for {SearchWord}:");
 
                 foreach (var word in MatchingWordList)
                 {
                     Console.WriteLine(word);
                 }
 
-                Console.WriteLine("\n\nEnd of list for {0}", SearchWord);
+                Console.WriteLine($"\n\nEnd of list for {SearchWord}");
             }
         }
 
         #endregion Public Methods
 
         #region Private Methods
-        
+
         private void ResetMatchingWordList()
         {
             if (MatchingWordList != null)
@@ -83,7 +83,7 @@ namespace KKP
             }
         }
 
-        private string GetHashKey(string word)
+        private static string GetHashKey(string word)
         {
             var charArray = word.ToCharArray();
             Array.Sort(charArray);
@@ -92,10 +92,10 @@ namespace KKP
 
         private void AddWordToHash(string newWord)
         {
-            if (string.IsNullOrEmpty(newWord))
-            {
-                throw new ApplicationException("Word is invalid.");
-            }
+            //if (string.IsNullOrEmpty(newWord))
+            //{
+            //    throw new ApplicationException("Word is invalid.");
+            //}
 
             var key = GetHashKey(newWord);
 
@@ -110,16 +110,14 @@ namespace KKP
             }
             else
             {
-                var wordList = new List<string>();
-                wordList.Add(newWord);
-
+                var wordList = new List<string> { newWord };
                 WordHash.Add(key, wordList);
             }
         }
 
         private void AddTestWordsToHash()
         {
-            foreach (var word in File.ReadAllLines("wordlist.txt").ToList())
+            foreach (var word in File.ReadAllLines("AllEnglishWords.txt").ToList())
             {
                 AddWordToHash(word.Trim().ToLower());
             }
@@ -129,18 +127,15 @@ namespace KKP
         {
             var wordList = new List<string>();
 
-            foreach (var keyValuePair in WordHash)
+            foreach (var keyValuePair in WordHash.Where(keyValuePair => IsSubKey(keyValuePair.Key)))
             {
-                if (IsSubKey(keyValuePair.Key))
-                {
-                    wordList.AddRange(WordHash[keyValuePair.Key]);
-                }
+                wordList.AddRange(WordHash[keyValuePair.Key]);
             }
 
             MatchingWordList = wordList.OrderBy(x => x).ToList();
         }
 
-        private Dictionary<char, int> GetCharCountFromString(string stringToCount)
+        private static Dictionary<char, int> GetCharCountFromString(string stringToCount)
         {
             var countDictionary = new Dictionary<char, int>();
 
@@ -168,16 +163,9 @@ namespace KKP
             {
                 var wordCharCountDictionary = GetCharCountFromString(key);
 
-                foreach (var keyValuePair in wordCharCountDictionary)
+                if ((from keyValuePair in wordCharCountDictionary let character = keyValuePair.Key where !SearchWordCharCount.ContainsKey(character) || keyValuePair.Value > SearchWordCharCount[character] select keyValuePair).Any())
                 {
-                    var character = keyValuePair.Key;
-
-                    if (!SearchWordCharCount.ContainsKey(character) || keyValuePair.Value > SearchWordCharCount[character])
-                    {
-                        // if the hash table does have the char or the number of times the char appears is to large the word will be excluded.
-                        isSubKey = false;
-                        break;
-                    }
+                    isSubKey = false;
                 }
             }
             else

@@ -2,9 +2,9 @@
 
 namespace KKP
 {
-    class Program
+    internal static class Program
     {
-        static void Main()
+        private static void Main()
         {
             Problem2();
             Problem3();
